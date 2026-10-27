@@ -1,0 +1,6 @@
+{
+  "name": "Kur'an 300 Kelime",
+  "description": "Kur'an-ı Kerim'de en sık geçen ilk 300 kelimeyi sesli kartlar, çoklu quizler ve akıllı SRS aralıklı tekrar sistemiyle öğreten Android uygulaması.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

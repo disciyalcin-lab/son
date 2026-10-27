@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Star above the Quran -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M54,22 L55.5,27 L60,25.5 L57,29.5 L61,32 L56.5,33.5 L57.5,38 L54,35 L50.5,38 L51.5,33.5 L47,32 L51,29.5 L48,25.5 L52.5,27 Z" />
+
+    <!-- Quran Rehal (wooden stand) -->
+    <path
+        android:fillColor="#B78628"
+        android:pathData="M36,72 L54,60 L72,72 L67,76 L54,67 L41,76 Z" />
+    <path
+        android:fillColor="#8C6215"
+        android:pathData="M39,74 L54,84 L69,74 L72,78 L54,90 L36,78 Z" />
+
+    <!-- Open Holy Quran Pages -->
+    <!-- Left page -->
+    <path
+        android:fillColor="#F6F3EB"
+        android:pathData="M52,43 C44,41 33,43 27,45 L27,64 C33,62 44,60 52,62 Z" />
+    <!-- Right page -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M56,43 C64,41 75,43 81,45 L81,64 C75,62 64,60 56,62 Z" />
+
+    <!-- Book spine / center binding -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M52,42 L56,42 L56,63 L52,63 Z" />
+
+    <!-- Decorative Quran text lines -->
+    <path
+        android:fillColor="#D4AF37"
+        android:pathData="M32,48 L48,46 L48,47.5 L32,49.5 Z M32,53 L48,51 L48,52.5 L32,54.5 Z M32,58 L48,56 L48,57.5 L32,59.5 Z M60,46 L76,48 L76,49.5 L60,47.5 Z M60,51 L76,53 L76,54.5 L60,52.5 Z M60,56 L76,58 L76,59.5 L60,57.5 Z" />
+</vector>

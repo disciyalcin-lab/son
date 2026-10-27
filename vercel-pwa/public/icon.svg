@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#8B1E28" />
+      <stop offset="100%" stop-color="#581018" />
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F3D689" />
+      <stop offset="50%" stop-color="#C89D42" />
+      <stop offset="100%" stop-color="#9E7622" />
+    </linearGradient>
+  </defs>
+  <!-- Squircle Background -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="8" />
+  <!-- Inner Ornamental Ring -->
+  <circle cx="256" cy="256" r="204" stroke="url(#goldGrad)" stroke-width="2.5" stroke-opacity="0.45" stroke-dasharray="6 6" />
+  <!-- Rub el Hizb (8-Pointed Seljuk Star) -->
+  <g transform="translate(256 256)">
+    <rect x="-128" y="-128" width="256" height="256" rx="14" fill="#4A0D13" stroke="url(#goldGrad)" stroke-width="10" />
+    <rect x="-128" y="-128" width="256" height="256" rx="14" fill="#4A0D13" stroke="url(#goldGrad)" stroke-width="10" transform="rotate(45)" />
+    <circle cx="0" cy="0" r="106" fill="#68141D" stroke="url(#goldGrad)" stroke-width="3" stroke-opacity="0.5" />
+  </g>
+  <!-- Top Crescent -->
+  <path d="M256 96C241 96 229 108 229 123C229 138 241 150 256 150C271 150 283 138 283 123C277 132 267 137 256 137C242 137 231 126 231 112C231 106 234 100 238 96C244 96 250 96 256 96Z" fill="url(#goldGrad)" />
+  <!-- Open Mushaf Pages -->
+  <g>
+    <!-- Left Page -->
+    <path d="M150 196C150 188 156 182 164 182H242C248 182 252 186 252 192V312C252 318 247 322 241 322H164C156 322 150 316 150 308V196Z" fill="#FAF5E8" stroke="url(#goldGrad)" stroke-width="4" />
+    <!-- Right Page -->
+    <path d="M260 192C260 186 264 182 270 182H348C356 182 362 188 362 196V308C362 316 356 322 348 322H271C265 322 260 318 260 312V192Z" fill="#FAF5E8" stroke="url(#goldGrad)" stroke-width="4" />
+    <!-- Page Lines -->
+    <rect x="170" y="214" width="62" height="8" rx="4" fill="#C89D42" />
+    <rect x="170" y="242" width="62" height="8" rx="4" fill="#841A24" />
+    <rect x="170" y="270" width="46" height="8" rx="4" fill="#C89D42" />
+    <rect x="280" y="214" width="62" height="8" rx="4" fill="#C89D42" />
+    <rect x="280" y="242" width="62" height="8" rx="4" fill="#841A24" />
+    <rect x="296" y="270" width="46" height="8" rx="4" fill="#C89D42" />
+    <!-- Rehal Base Fold -->
+    <path d="M176 342L256 320L336 342" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
