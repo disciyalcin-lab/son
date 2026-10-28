@@ -1,6 +1,6 @@
 {
   "id": "/",
-  "name": "Kur'an 300 Kelime",
+  "name": "Kur'an 300 Kelime - Hızlı Öğrenme",
   "short_name": "Kur'an 300",
   "description": "Kur'an-ı Kerim'de en sık geçen 300 kelimeyi aralıklı tekrar (SRS), sesli kartlar ve quizlerle öğrenin (%75+ Kur'an kapsamı).",
   "start_url": "/",
@@ -13,6 +13,12 @@
   "dir": "ltr",
   "categories": ["education", "books", "reference"],
   "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/pwa-192x192.png",
       "sizes": "192x192",

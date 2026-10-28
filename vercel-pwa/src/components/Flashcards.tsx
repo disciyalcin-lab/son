@@ -5,7 +5,8 @@ import {
   getDeck12Number,
   getLast7DaysLearnedData
 } from '../utils/storage';
-import { audioPlayer } from '../utils/audioPlayer';
+import { audioPlayer, useAudioPlayerState } from '../utils/audioPlayer';
+import { splitAyahWithHighlight } from '../utils/arabicUtils';
 import {
   Volume2,
   RotateCcw,
@@ -18,7 +19,11 @@ import {
   Moon,
   BookOpen,
   Trophy,
-  RefreshCw
+  RefreshCw,
+  Loader2,
+  Square,
+  AlertCircle,
+  X
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -57,12 +62,12 @@ export const Flashcards: React.FC<FlashcardsProps> = ({
   const [filterMode, setFilterMode] = useState<FilterMode>('ALL');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [playingType, setPlayingType] = useState<'word' | 'ayah' | null>(null);
   const [shuffleSeed, setShuffleSeed] = useState<number>(0);
   const [isSessionComplete, setIsSessionComplete] = useState(false);
   const [learnedInSessionCount, setLearnedInSessionCount] = useState(0);
   const [repeatInSessionCount, setRepeatInSessionCount] = useState(0);
 
+  const audioState = useAudioPlayerState();
   const activeDeck = selectedDeckId || 1;
 
   // Last 7 days daily learned words bar chart data
@@ -74,6 +79,17 @@ export const Flashcards: React.FC<FlashcardsProps> = ({
     () => last7DaysData.reduce((sum, item) => sum + item.count, 0),
     [last7DaysData]
   );
+
+  // Per-deck progress summary for deck tabs
+  const deckCounts = useMemo(() => {
+    const map: Record<number, { learned: number; total: number }> = {};
+    for (let d = 1; d <= 12; d++) {
+      const words = QURAN_WORDS_300.filter((w) => getDeck12Number(w.id) === d);
+      const learned = words.filter((w) => progressMap[w.id]?.isLearned).length;
+      map[d] = { learned, total: words.length || 25 };
+    }
+    return map;
+  }, [progressMap]);
 
   // 12 Decks (25 words each), strictly frequency DESC by default
   const deckWords = useMemo(() => {
@@ -98,26 +114,53 @@ export const Flashcards: React.FC<FlashcardsProps> = ({
   const safeIndex = filteredWords.length > 0 ? Math.min(currentIndex, filteredWords.length - 1) : 0;
   const currentWord = filteredWords[safeIndex];
 
+  const wordAudioKey = currentWord ? `fc-word-${currentWord.id}` : '';
+  const ayahAudioKey = currentWord ? `fc-ayah-${currentWord.id}` : '';
+
+  const isWordLoading =
+    audioState.status === 'loading' && audioState.activeKey === wordAudioKey;
+  const isWordPlaying =
+    audioState.status === 'playing' && audioState.activeKey === wordAudioKey;
+  const isAyahLoading =
+    audioState.status === 'loading' && audioState.activeKey === ayahAudioKey;
+  const isAyahPlaying =
+    audioState.status === 'playing' && audioState.activeKey === ayahAudioKey;
+
+  const highlightedAyahSegments = useMemo(() => {
+    if (!currentWord) return [];
+    return splitAyahWithHighlight(currentWord.exampleAyahArabic, currentWord.arabic);
+  }, [currentWord]);
+
   useEffect(() => {
     if (autoPlayAudio && currentWord && !isSessionComplete) {
-      setPlayingType('word');
-      audioPlayer.playWord(currentWord.arabic, currentWord.audioUrl, () => setPlayingType(null));
+      audioPlayer.playWord(
+        currentWord.arabic,
+        currentWord.audioUrl,
+        undefined,
+        `fc-word-${currentWord.id}`
+      );
     }
   }, [currentWord?.id, autoPlayAudio, isSessionComplete]);
 
   const handlePlayWord = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentWord) return;
-    setPlayingType('word');
-    audioPlayer.playWord(currentWord.arabic, currentWord.audioUrl, () => setPlayingType(null));
+    audioPlayer.playWord(
+      currentWord.arabic,
+      currentWord.audioUrl,
+      undefined,
+      wordAudioKey
+    );
   };
 
   const handlePlayAyah = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentWord) return;
-    setPlayingType('ayah');
-    audioPlayer.playAyah(currentWord.exampleAudioUrl, currentWord.exampleAyahArabic, () =>
-      setPlayingType(null)
+    audioPlayer.playAyah(
+      currentWord.exampleAudioUrl,
+      currentWord.exampleAyahArabic,
+      undefined,
+      ayahAudioKey
     );
   };
 
@@ -150,25 +193,46 @@ export const Flashcards: React.FC<FlashcardsProps> = ({
 
   return (
     <div className="space-y-3 pb-8">
-      {/* 1. Deck Selector Tab Row (Deste 1 .. Deste 12) */}
+      {/* 1. Deck Selector Tab Row (Deste 1 .. Deste 12 with progress ratios) */}
       <div className="-mx-4 flex items-center overflow-x-auto border-b border-[#E4E4EC] dark:border-[#32323E] bg-white dark:bg-[#1B1B22] px-4 no-scrollbar">
         {Array.from({ length: 12 }, (_, i) => i + 1).map((deckNum) => {
           const isSelected = activeDeck === deckNum;
+          const dc = deckCounts[deckNum] || { learned: 0, total: 25 };
           return (
             <button
               key={deckNum}
               onClick={() => handleSwitchDeck(deckNum)}
-              className={`shrink-0 border-b-2 px-3.5 py-3 text-xs transition ${
+              className={`shrink-0 border-b-2 px-3 py-3 text-xs transition flex items-center gap-1.5 ${
                 isSelected
                   ? 'border-[#B7282E] dark:border-[#E2474D] font-extrabold text-[#B7282E] dark:text-[#E2474D]'
                   : 'border-transparent font-medium text-[#5A5A64] dark:text-[#B8B8C4]'
               }`}
             >
-              Deste {deckNum}
+              <span>Deste {deckNum}</span>
+              <span className="rounded-md bg-[#F0F0F4] dark:bg-[#262630] px-1.5 py-0.2 text-[10px] font-bold tabular-nums text-[#5A5A64] dark:text-[#B8B8C4]">
+                {dc.learned}/{dc.total}
+              </span>
             </button>
           );
         })}
       </div>
+
+      {/* Audio Error Toast */}
+      {audioState.errorMessage && (
+        <div className="flex items-center justify-between gap-2 rounded-2xl bg-[#E65100]/15 border border-[#E65100]/35 px-4 py-2.5 text-xs font-bold text-[#E65100]">
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <span className="truncate">{audioState.errorMessage}</span>
+          </div>
+          <button
+            onClick={() => audioPlayer.clearError()}
+            className="shrink-0 rounded-full p-1 hover:bg-black/10"
+            aria-label="Kapat"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* 2. Secondary Control Bar (Filter Chips & Utility Toolbar) */}
       <div className="flex items-center justify-between gap-2 pt-1">
@@ -365,10 +429,26 @@ export const Flashcards: React.FC<FlashcardsProps> = ({
                     <button
                       type="button"
                       onClick={handlePlayWord}
-                      className="inline-flex items-center gap-2 rounded-3xl bg-[#FDECEC] dark:bg-[#4E161A] px-5 py-2.5 text-xs font-bold text-[#8E1B20] dark:text-[#FFD9DA] shadow-sm hover:opacity-90 transition"
+                      className={`inline-flex items-center gap-2 rounded-3xl px-5 py-2.5 text-xs font-bold shadow-sm transition ${
+                        isWordPlaying
+                          ? 'bg-[#B7282E] dark:bg-[#E2474D] text-white'
+                          : 'bg-[#FDECEC] dark:bg-[#4E161A] text-[#8E1B20] dark:text-[#FFD9DA] hover:opacity-90'
+                      }`}
                     >
-                      <Volume2 className="h-4 w-4" />
-                      <span>{playingType === 'word' ? 'Oynatılıyor...' : 'Kelimeyi Dinle'}</span>
+                      {isWordLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : isWordPlaying ? (
+                        <Square className="h-3.5 w-3.5 fill-current" />
+                      ) : (
+                        <Volume2 className="h-4 w-4" />
+                      )}
+                      <span>
+                        {isWordLoading
+                          ? 'Yükleniyor...'
+                          : isWordPlaying
+                          ? 'Oynatılıyor (Durdur)'
+                          : 'Kelimeyi Dinle'}
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -397,7 +477,7 @@ export const Flashcards: React.FC<FlashcardsProps> = ({
                     {currentWord.turkishMeaning}
                   </h3>
 
-                  {/* Example Ayah Box */}
+                  {/* Example Ayah Box with Dynamic QuranGold Word Highlighting */}
                   <div className="mt-4 rounded-[18px] bg-[#F0F0F4]/60 dark:bg-[#262630]/60 p-4 space-y-2 border border-[#E4E4EC] dark:border-[#32323E]">
                     <div className="flex items-center justify-between">
                       <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5A5A64] dark:text-[#B8B8C4]">
@@ -407,17 +487,38 @@ export const Flashcards: React.FC<FlashcardsProps> = ({
                       <button
                         type="button"
                         onClick={handlePlayAyah}
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-[#B7282E] dark:text-[#E2474D] hover:bg-[#B7282E]/10 transition"
-                        title="Ayeti Dinle"
+                        className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
+                          isAyahPlaying
+                            ? 'bg-[#B7282E] dark:bg-[#E2474D] text-white'
+                            : 'text-[#B7282E] dark:text-[#E2474D] hover:bg-[#B7282E]/10'
+                        }`}
+                        title={isAyahPlaying ? 'Durdur' : 'Ayeti Dinle'}
                       >
-                        <Volume2 className="h-5 w-5" />
+                        {isAyahLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : isAyahPlaying ? (
+                          <Square className="h-3.5 w-3.5 fill-current" />
+                        ) : (
+                          <Volume2 className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                     <p
-                      className="font-arabic text-xl text-right text-[#1A1A1E] dark:text-[#F2F2F7] leading-relaxed"
+                      className="font-arabic text-xl text-right text-[#1A1A1E] dark:text-[#F2F2F7] leading-loose"
                       dir="rtl"
                     >
-                      {currentWord.exampleAyahArabic}
+                      {highlightedAyahSegments.map((seg, idx) =>
+                        seg.isMatch ? (
+                          <mark
+                            key={idx}
+                            className="rounded-lg bg-[#C89D42]/30 dark:bg-[#DEC286]/25 px-1.5 py-0.5 font-bold text-[#B7282E] dark:text-[#DEC286] underline decoration-[#C89D42] decoration-2 underline-offset-4"
+                          >
+                            {seg.text}
+                          </mark>
+                        ) : (
+                          <React.Fragment key={idx}>{seg.text}</React.Fragment>
+                        )
+                      )}
                     </p>
                     <p className="text-xs text-[#5A5A64] dark:text-[#B8B8C4] leading-relaxed">
                       "{currentWord.exampleAyahTurkish}"
